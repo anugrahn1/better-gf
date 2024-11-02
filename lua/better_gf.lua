@@ -1,23 +1,24 @@
 local M = {}
 
 M.setup = function()
-  vim.api.nvim_create_user_command("BetterGF", M.gf_replace, {})
+  vim.api.nvim_create_user_command('BetterGF', M.gf_replace, {})
 end
 
 -- TODO: make using picker optional
 M.gf_replace = function()
-  if pcall(vim.cmd.normal, 'gf') then -- if file already exists, continues like normal gf
+  local ok, err = pcall(vim.cmd.normal, 'gf')
+
+  if ok then -- if file already exists, continues like normal gf
   else
-    M.open_picker() -- if file doesn't exist, open picker
+    local missing_filename = err:match '"([^"]+)"' -- extract missing filename using regex with error message
+    M.open_picker(missing_filename) -- if file doesn't exist, open picker
   end
 end
 
--- TODO: use word under cursor when pressing keybind and pass it to menu
-M.open_picker = function()
-  local menu = require 'test'
-  menu:mount()
+M.open_picker = function(missing_filename)
+  local create_menu = require 'test'
+  create_menu(missing_filename)
 end
 
--- M.open_picker()
 
 return M
